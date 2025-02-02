@@ -12,7 +12,7 @@ import { Category } from '../../models/Category';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeleteCategoryModalComponent } from '../delete-category-modal/delete-category-modal.component';
 import { AddCategoryModalComponent } from '../add-category-modal/add-category-modal.component';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -36,22 +36,61 @@ export class SidebarComponent implements OnInit {
     private categoryService: CategoryService,
     private productService: ProductService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    this.loadCategories();
+    this.route.queryParams.subscribe(params => {
+      const categoryId = params['categoryId'] || 0;
+      this.loadCategories(categoryId);
+    });
   }
 
-  loadCategories() {
+  loadCategories(selectedCategoryId?: string) {
     this.categoryService.getCategoryTree().subscribe({
       next: (data) => {
         this.dataSource.data = data;
+        if (selectedCategoryId) {
+          this.selectAndExpandNode(this.dataSource.data, selectedCategoryId);
+        }
       },
       error: (error) => {
         console.error('Error loading categories:', error);
       }
     });
+  }
+
+  selectAndExpandNode(nodes: Category[], categoryId: string) {
+    const findNode = (nodes: Category[]): Category | null => {
+      for (const node of nodes) {
+        if (node.id.toString() === categoryId) {
+          return node;
+        }
+        if (node.children?.length) {
+          const found = findNode(node.children);
+          if (found) {
+            // Expand parent nodes
+            this.treeControl.expand(node);
+            return found;
+          }
+        }
+      }
+      return null;
+    };
+
+    const foundNode = findNode(nodes);
+    if (foundNode) {
+      this.selectedNode = foundNode;
+      
+      // If the found node has children, expand it
+      if (this.hasChild(0, foundNode)) {
+        this.treeControl.expand(foundNode);
+      }
+
+      // Load products for the selected node
+      this.loadProducts(foundNode);
+    }
   }
 
   hasChild = (_: number, node: Category) => !!node.children && node.children.length > 0;
@@ -66,12 +105,13 @@ export class SidebarComponent implements OnInit {
 
     this.selectedNode = node;
 
-    if (!this.hasChild(0, node)) {
-      this.router.navigate([], {
-        queryParams: { categoryId: node.id },
-        queryParamsHandling: 'merge'
-      });
-    }
+   
+    this.router.navigate([], {
+      queryParams: { categoryId: node.id },
+      queryParamsHandling: 'merge'
+    });
+    this.loadProducts(node);
+    
   }
 
   loadProducts(node: Category) {
@@ -97,8 +137,8 @@ export class SidebarComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadCategories();
-        this.refreshSelection();
+        const currentCategoryId = this.selectedNode?.id;
+        this.loadCategories(currentCategoryId?.toString() || '0');
       }
     });
   }
@@ -114,8 +154,8 @@ export class SidebarComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadCategories();
-        this.refreshSelection();
+        const currentCategoryId = this.selectedNode?.id;
+        this.loadCategories(currentCategoryId?.toString() || '0');
       }
     });
   }
@@ -134,7 +174,6 @@ export class SidebarComponent implements OnInit {
       if (result === true && this.selectedNode?.id) {
         this.categoryService.deleteCategory(this.selectedNode.id).subscribe({
           next: () => {
-            this.loadCategories();
             this.refreshSelection();
           }
         });
@@ -148,16 +187,13 @@ export class SidebarComponent implements OnInit {
 
   refreshSelection() {
     this.selectedNode = null;
+    const currentParams = { ...this.route.snapshot.queryParams };
+    delete currentParams['categoryId'];
     this.router.navigate([], {
-      queryParams: { categoryId: null },
+      queryParams: currentParams,
       queryParamsHandling: 'merge'
     });
-  }
 
-  onCategorySelect(category: any) {
-    this.router.navigate([], {
-      queryParams: { categoryId: category.id },
-      queryParamsHandling: 'merge'
-    });
+    this.loadCategories();
   }
 }
