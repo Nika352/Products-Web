@@ -29,15 +29,12 @@ export class DeleteProductModalComponent {
   }
 
   onDelete() {
-    // Create an array of delete observables
     const deleteObservables = this.data.products.map(product => 
       this.productService.deleteProduct(product.id)
     );
 
-    // Execute all deletes in parallel
     forkJoin(deleteObservables).subscribe({
       next: () => {
-        // Close with success result immediately after deletion
         this.dialogRef.close({ success: true });
       },
       error: (error) => {

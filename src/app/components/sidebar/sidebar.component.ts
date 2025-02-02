@@ -1,18 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { NestedTreeControl } from '@angular/cdk/tree';
-import { CategoryService } from '../../services/category.service';
-import { ProductService } from '../../services/product.service';
 import { CommonModule } from '@angular/common';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { Router, ActivatedRoute } from '@angular/router';
+import { SelectionModel } from '@angular/cdk/collections';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { CategoryService } from '../../services/category.service';
+import { ProductService } from '../../services/product.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Category } from '../../models/Category';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeleteCategoryModalComponent } from '../delete-category-modal/delete-category-modal.component';
 import { AddCategoryModalComponent } from '../add-category-modal/add-category-modal.component';
-import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -70,7 +71,6 @@ export class SidebarComponent implements OnInit {
         if (node.children?.length) {
           const found = findNode(node.children);
           if (found) {
-            // Expand parent nodes
             this.treeControl.expand(node);
             return found;
           }
@@ -83,12 +83,10 @@ export class SidebarComponent implements OnInit {
     if (foundNode) {
       this.selectedNode = foundNode;
       
-      // If the found node has children, expand it
       if (this.hasChild(0, foundNode)) {
         this.treeControl.expand(foundNode);
       }
 
-      // Load products for the selected node
       this.loadProducts(foundNode);
     }
   }

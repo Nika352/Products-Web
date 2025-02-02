@@ -44,7 +44,6 @@ export class AppComponent {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.categoryId = params['categoryId'] ? +params['categoryId'] : null;
-      console.log('Category ID from URL:', this.categoryId);
       this.productService.loadProducts(this.categoryId || 0);
     });
   }

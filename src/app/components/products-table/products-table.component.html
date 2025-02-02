@@ -12,8 +12,8 @@
     </button>
   </div>
   <div class="right-controls">
-    <button mat-raised-button color="primary" [disabled]="selection.selected.length !== 1">
-      <mat-icon>info</mat-icon>
+    <button mat-raised-button color="primary" (click)="openDiagram()" [disabled]="!dataSource.length">
+      <mat-icon>timeline</mat-icon>
       დიაგრამა
     </button>
   </div>

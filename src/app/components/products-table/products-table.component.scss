@@ -5,12 +5,10 @@
     overflow: auto;
   }
   
-  // Table header
   .mat-header-row {
-    flex-shrink: 0; // Keep header always visible
+    flex-shrink: 0; 
   }
   
-  // Table rows should stretch
   .mat-row {
     flex-grow: 1;
     display: flex;
