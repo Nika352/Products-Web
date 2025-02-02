@@ -36,8 +36,13 @@ mat-dialog-actions {
   opacity: 0.8;
 }
 
-.new-country-container {
-  flex: 0.5;
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.date-error {
+  margin-bottom: 16px;
 }
 
 

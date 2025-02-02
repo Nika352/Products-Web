@@ -14,6 +14,8 @@ import { Product } from '../../models/Product';
 import { ProductService } from '../../services/product.service';
 import { CountryService } from '../../services/country.service';
 import { MatIconModule } from '@angular/material/icon';
+import { catchError } from 'rxjs/operators';
+import { of, throwError } from 'rxjs';
 
 interface ProductDialogData {
   mode: 'add' | 'edit';
@@ -86,7 +88,10 @@ export class ProductModalComponent implements OnInit {
       createdAt: ['', Validators.required],
       endDate: ['', Validators.required]
     }, {
-      validators: this.countryValidator
+      validators: [
+        this.countryValidator,
+        this.dateValidator
+      ]
     });
     
     if (this.isEditMode && data.product) {
@@ -114,6 +119,22 @@ export class ProductModalComponent implements OnInit {
     return null;
   }
 
+  private dateValidator(group: AbstractControl): ValidationErrors | null {
+    const createdAt = group.get('createdAt')?.value;
+    const endDate = group.get('endDate')?.value;
+
+    if (createdAt && endDate) {
+      const createdAtDate = new Date(createdAt);
+      const endDateTime = new Date(endDate);
+
+      if (createdAtDate > endDateTime) {
+        return { dateOrder: true };
+      }
+    }
+
+    return null;
+  }
+
   ngOnInit() {
     this.loadCountries();
   }
@@ -122,24 +143,24 @@ export class ProductModalComponent implements OnInit {
     this.countryService.getCountries().subscribe({
       next: (countries) => {
         this.countries = countries;
-      },
-      error: (error) => {
-        console.error('Error loading countries:', error);
       }
     });
   }
 
   onSubmit() {
     if (this.productForm.valid) {
-      console.log('Form value:', this.productForm.value);
-      console.log('New country value:', this.productForm.get('newCountry')?.value);
       
       if (this.showNewCountryInput && this.productForm.get('newCountry')?.value) {
         const newCountryName : string = this.productForm.get('newCountry')?.value;
-        
-        console.log('Creating new country with name:', newCountryName);
-        
-        this.countryService.createCountry({ name: newCountryName.trim(), id: 0 }).subscribe({
+        this.countryService.createCountry({ name: newCountryName.trim(), id: 0 }).pipe(
+          catchError((error) => {
+            let country = this.countries.find(c => c.name === newCountryName.trim());
+            if (country) {
+              return of(country);
+            }
+            return throwError(() => error);
+          })
+        ).subscribe({
 
           next: (newCountry) => {
             const { countryId, newCountry: _, ...otherFormData } = this.productForm.value;
@@ -150,23 +171,16 @@ export class ProductModalComponent implements OnInit {
               categoryId: this.data.categoryId
             };
 
-            console.log('Creating product with data:', productData);
-
             if (this.isEditMode) {
               this.updateProduct(productData);
             } else {
               this.createProduct(productData);
             }
           },
-          error: (error) => {
-            console.error('Error creating country:', error);
-          }
         });
       } else {
         const { newCountry, ...productData } = this.productForm.value;
         
-        console.log('Using existing country, product data:', productData);
-
         if (this.isEditMode) {
           this.updateProduct({...productData, categoryId: this.data.categoryId});
         } else {
@@ -204,9 +218,6 @@ export class ProductModalComponent implements OnInit {
         this.dialogRef.close(true);
         this.productService.loadProducts(this.data.categoryId || 0);
       },
-      error: (error) => {
-        console.error('Error updating product:', error);
-      }
     });
   }
 
@@ -215,9 +226,6 @@ export class ProductModalComponent implements OnInit {
       next: () => {
         this.dialogRef.close(true);
         this.productService.loadProducts(this.data.categoryId || 0);
-      },
-      error: (error) => {
-        console.error('Error creating product:', error);
       }
     });
   }
@@ -229,6 +237,13 @@ export class ProductModalComponent implements OnInit {
   getCountryError(): string {
     if (this.productForm.errors?.['countryRequired']) {
       return 'Please select a country or add a new one';
+    }
+    return '';
+  }
+
+  getDateError(): string {
+    if (this.productForm.errors?.['dateOrder']) {
+      return 'Created date cannot be after end date';
     }
     return '';
   }

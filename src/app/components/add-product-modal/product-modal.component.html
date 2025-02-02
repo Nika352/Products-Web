@@ -21,7 +21,6 @@
         <span matPrefix>$&nbsp;</span>
       </mat-form-field>
 
-      <!-- Show country selector when not adding new country -->
       <mat-form-field *ngIf="!showNewCountryInput" appearance="outline">
         <mat-label>Country</mat-label>
         <mat-select formControlName="countryId" (selectionChange)="onCountrySelectionChange($event)">
@@ -35,7 +34,6 @@
         </mat-error>
       </mat-form-field>
 
-      <!-- Show new country input with back button as prefix -->
       <mat-form-field *ngIf="showNewCountryInput" appearance="outline">
         <mat-label>New Country Name</mat-label>
         <mat-icon matPrefix class="clickable" (click)="cancelNewCountry()" matTooltip="Back to country selection">arrow_back</mat-icon>
@@ -48,35 +46,29 @@
   
     <div class="form-row">
       <mat-form-field appearance="outline">
-        <mat-label>თარიღიდან</mat-label>
-        <input
-          matInput
-          [matDatepicker]="pickerFrom"
-          formControlName="createdAt"
-          required
-        />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="pickerFrom"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #pickerFrom></mat-datepicker>
+        <mat-label>Created At</mat-label>
+        <input matInput [matDatepicker]="createdAtPicker" formControlName="createdAt">
+        <mat-datepicker-toggle matSuffix [for]="createdAtPicker"></mat-datepicker-toggle>
+        <mat-datepicker #createdAtPicker></mat-datepicker>
+        <mat-error *ngIf="productForm.get('createdAt')?.errors?.['required']">
+          Created date is required
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>თარიღამდე</mat-label>
-        <input
-          matInput
-          [matDatepicker]="pickerTo"
-          formControlName="endDate"
-          required
-        />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="pickerTo"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #pickerTo></mat-datepicker>
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
+        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #endDatePicker></mat-datepicker>
+        <mat-error *ngIf="productForm.get('endDate')?.errors?.['required']">
+          End date is required
+        </mat-error>
       </mat-form-field>
     </div>
+
+    <mat-error *ngIf="productForm.errors?.['dateOrder']" class="date-error">
+      {{getDateError()}}
+    </mat-error>
   </div>
 
   <div mat-dialog-actions align="end">
@@ -91,3 +83,4 @@
     </button>
   </div>
 </form>
+
