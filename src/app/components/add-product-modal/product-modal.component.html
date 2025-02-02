@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>{{ isEditMode ? 'რედაქტირება' : 'დაამატე პროდუქტი' }}</h2>
 
-<form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+<form [formGroup]="productForm">
   <div mat-dialog-content>
     <div class="form-row">
       <mat-form-field appearance="outline">
@@ -82,10 +82,10 @@
     <button
       mat-raised-button
       color="primary"
-      type="submit"
       [disabled]="!productForm.valid"
+      (click)="onSubmit()"
     >
-      {{ isEditMode ? 'შენახვა' : 'დამატება' }}
+      {{ isEditMode ? 'შენახვა' : 'add' }}
     </button>
   </div>
 </form>

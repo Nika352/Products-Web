@@ -14,7 +14,6 @@ export class ProductService {
     private productsSource = new BehaviorSubject<Product[]>([]);
     currentProducts = this.productsSource.asObservable();
 
-
     getProduct(id: number): Observable<Product> {
         return this.http.get<Product>(`${this.apiUrl}/${id}`);
     }
@@ -31,11 +30,23 @@ export class ProductService {
         return this.http.post<Product>(this.apiUrl, product);
     }
 
+    updateProduct(product: Partial<Product>): Observable<Product> {
+        return this.http.put<Product>(`${this.apiUrl}/${product.id}`, product);
+    }
+
     deleteProduct(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
+
     updateProducts(products: Product[]) {
         this.productsSource.next(products);
     }
+
+    loadProducts(categoryId: number) {
+        this.getProductsByCategory(categoryId).subscribe(products => {
+            this.productsSource.next(products);
+        });
+    }
+
 }
 

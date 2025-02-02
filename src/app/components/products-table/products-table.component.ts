@@ -10,6 +10,7 @@ import { ProductModalComponent } from '../add-product-modal/product-modal.compon
 import { Product } from '../../models/Product';
 import { DeleteProductModalComponent } from '../delete-product-modal/delete-product-modal.component';
 import { ProductService } from '../../services/product.service';
+
 @Component({
   selector: 'app-products-table',
   standalone: true,
@@ -29,8 +30,6 @@ export class ProductsTableComponent implements OnInit {
   ngOnInit() {
     this.productService.currentProducts.subscribe(products => {
       this.dataSource = products;
-      // If you're using MatTableDataSource, use this instead:
-      // this.dataSource.data = products;
     });
   }
 
@@ -41,7 +40,6 @@ export class ProductsTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('New product:', result.product);
       }
     });
   }
@@ -56,26 +54,6 @@ export class ProductsTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Updated product:', result.product);
-      }
-    });
-  }
-
-
-  openDeleteModal(product: any) {
-    const dialogRef = this.dialog.open(DeleteProductModalComponent, {
-      width: '400px',
-      data: { product: product }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
- 
-        const index = this.dataSource.findIndex(item => item.code === product.code);
-        if (index > -1) {
-          this.dataSource.splice(index, 1);
-          this.selection.clear();
-        }
       }
     });
   }
@@ -93,5 +71,25 @@ export class ProductsTableComponent implements OnInit {
     }
     this.selection.select(...this.dataSource);
   }
+
+  refreshSelection() {
+    this.selection.clear(); 
+  }
+
+  openDeleteDialog(selectedProducts: any[]) {
+    const dialogRef = this.dialog.open(DeleteProductModalComponent, {
+      width: '400px',
+      data: { products: selectedProducts }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.success) {
+        this.productService.loadProducts(selectedProducts[0].categoryId);
+        this.refreshSelection();
+      }
+      
+    });
+  }
+
 }
 

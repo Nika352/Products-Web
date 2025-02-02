@@ -11,6 +11,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { Product } from '../../models/Product';
+import { ProductService } from '../../services/product.service';
 interface ProductDialogData {
   mode: 'add' | 'edit';
   product?: Product
@@ -62,9 +63,11 @@ export class ProductModalComponent {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ProductModalComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: ProductDialogData
+    @Inject(MAT_DIALOG_DATA) private data: ProductDialogData,
+    private productService: ProductService
   ) {
     this.isEditMode = data.mode === 'edit';
+
 
     this.productForm = this.fb.group({
       code: ['', Validators.required],
@@ -92,13 +95,27 @@ export class ProductModalComponent {
     if (this.productForm.valid) {
       const { newCountry, ...productData } = this.productForm.value;
       
-      const result = {
-        mode: this.isEditMode ? 'edit' : 'add',
-        product: productData
-      };
-      
-      console.log('Form submitted:', result);
-      this.dialogRef.close(result);
+      if (this.isEditMode) {
+        
+        this.productService.updateProduct(productData).subscribe({
+          next: () => {
+            this.dialogRef.close(true);
+          },
+          error: (error) => {
+            console.error('Error updating product:', error);
+          }
+        });
+      } else {
+       
+        this.productService.createProduct(productData).subscribe({
+          next: () => {
+            this.dialogRef.close(true);
+          },
+          error: (error) => {
+            console.error('Error creating product:', error);
+          }
+        });
+      }
     } else {
       Object.keys(this.productForm.controls).forEach(key => {
         const control = this.productForm.get(key);

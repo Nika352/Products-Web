@@ -92,6 +92,7 @@ export class SidebarComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadCategories();
+        this.refreshSelection();
       }
     });
   }
@@ -108,6 +109,7 @@ export class SidebarComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadCategories();
+        this.refreshSelection();
       }
     });
   }
@@ -127,6 +129,7 @@ export class SidebarComponent implements OnInit {
         this.categoryService.deleteCategory(this.selectedNode.id).subscribe({
           next: () => {
             this.loadCategories();
+            this.refreshSelection();
           }
         });
       }
@@ -135,5 +138,9 @@ export class SidebarComponent implements OnInit {
 
   isSelected(node: Category): boolean {
     return this.selectedNode?.id === node.id;
+  }
+
+  refreshSelection() {
+    this.selectedNode = null;
   }
 }

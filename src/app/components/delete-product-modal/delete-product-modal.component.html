@@ -1,19 +1,19 @@
 <div class="delete-modal">
-  <h2 mat-dialog-title class="modal-title">პროდუქტის წაშლა</h2>
+  <h2 mat-dialog-title>Confirm Delete</h2>
 
   <mat-dialog-content class="modal-content">
-    <p>ნამდვილად გსურთ პროდუქტის "{{ data.product.name }}" წაშლა?</p>
+    <p *ngIf="productCount === 1">Are you sure you want to delete this product?</p>
+    <p *ngIf="productCount > 1">Are you sure you want to delete {{ productCount }} products?</p>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end" class="modal-actions">
-    <button mat-button mat-dialog-close class="cancel-btn">გაუქმება</button>
+    <button mat-button (click)="dialogRef.close({ success: false })" class="cancel-btn">Cancel</button>
     <button
-      mat-raised-button
+      mat-button
       color="warn"
-      [mat-dialog-close]="true"
-      class="delete-btn"
+      (click)="onDelete()"
     >
-      წაშლა
+      Delete
     </button>
   </mat-dialog-actions>
 </div>

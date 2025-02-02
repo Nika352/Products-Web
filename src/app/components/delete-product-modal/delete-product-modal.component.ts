@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { ProductService } from '../../services/product.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-delete-product-modal',
@@ -17,12 +19,32 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class DeleteProductModalComponent {
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { products: any[] },
     public dialogRef: MatDialogRef<DeleteProductModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { product: any }
-  ) { }
+    private productService: ProductService
+  ) {}
+
+  get productCount(): number {
+    return this.data.products.length;
+  }
 
   onDelete() {
-    this.dialogRef.close(true);
+    // Create an array of delete observables
+    const deleteObservables = this.data.products.map(product => 
+      this.productService.deleteProduct(product.id)
+    );
+
+    // Execute all deletes in parallel
+    forkJoin(deleteObservables).subscribe({
+      next: () => {
+        // Close with success result immediately after deletion
+        this.dialogRef.close({ success: true });
+      },
+      error: (error) => {
+        console.error('Error deleting products:', error);
+        this.dialogRef.close({ success: false });
+      }
+    });
   }
 
   onCancel() {

@@ -7,7 +7,7 @@
     (click)="openEditModal(selection.selected[0])">
       <mat-icon>edit</mat-icon>
     </button>
-    <button mat-mini-fab color="warn" [disabled]="!selection.hasValue()"  (click)="openDeleteModal(selection.selected[0])">
+    <button mat-mini-fab color="warn" [disabled]="!selection.hasValue()"  (click)="openDeleteDialog(selection.selected)">
       <mat-icon>delete</mat-icon>
     </button>
   </div>
