@@ -1,0 +1,68 @@
+<div class="sidebar-container">
+  <div class="action-buttons">
+    <button
+      mat-mini-fab
+      color="primary"
+      (click)="addCategory()"
+      matTooltip="{{
+        selectedNode
+          ? 'Add child to ' + selectedNode.name
+          : 'Select a category first'
+      }}"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      color="primary"
+      [disabled]="!selectedNode"
+      (click)="editCategory()"
+      matTooltip="Edit category"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      color="warn"
+      [disabled]="!selectedNode"
+      (click)="deleteCategory()"
+      matTooltip="Delete category"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+
+  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+      <div
+        class="tree-node"
+        [class.selected]="isSelected(node)"
+        (click)="onNodeSelect(node, $event)"
+      >
+        <button mat-icon-button disabled></button>
+        <span class="node-name">{{ node.name }}</span>
+      </div>
+    </mat-tree-node>
+
+    <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+      <div
+        class="tree-node"
+        [class.selected]="isSelected(node)"
+        (click)="onNodeSelect(node, $event)"
+      >
+        <button mat-icon-button matTreeNodeToggle>
+          <mat-icon class="mat-icon-rtl-mirror">
+            {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
+          </mat-icon>
+        </button>
+        <span class="node-name">{{ node.name }}</span>
+      </div>
+      <div
+        class="nested-node"
+        [class.tree-invisible]="!treeControl.isExpanded(node)"
+      >
+        <ng-container matTreeNodeOutlet></ng-container>
+      </div>
+    </mat-nested-tree-node>
+  </mat-tree>
+</div>

@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>
+  {{ data.isEdit ? "Edit Category" : "Add Category" }}
+  <div class="subtitle" *ngIf="data.parentCategory && !data.isEdit">
+    Parent: {{ data.parentCategory.name }}
+  </div>
+</h2>
+
+<form [formGroup]="categoryForm">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Category Name</mat-label>
+      <input
+        matInput
+        formControlName="name"
+        placeholder="Enter category name"
+      />
+      <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
+        Name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>დახურვა</button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="categoryForm.invalid"
+      (click)="onSubmit()"
+    >
+      {{ data.isEdit ? "შენახვა" : "დამატება" }}
+    </button>
+  </mat-dialog-actions>
+</form>

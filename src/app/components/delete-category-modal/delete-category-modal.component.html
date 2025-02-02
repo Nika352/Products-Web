@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>Delete Category</h2>
+<mat-dialog-content>
+  <p>Are you sure you want to delete category "{{data.category.name}}"?</p>
+  <p class="warning">Warning: All products in this category will also be deleted!</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn" [mat-dialog-close]="true">Delete</button>
+</mat-dialog-actions>
