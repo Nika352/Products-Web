@@ -1,6 +1,6 @@
 <div class="table-controls">
   <div class="left-controls">
-    <button mat-mini-fab color="primary" (click)="openAddModal()">
+    <button mat-mini-fab color="primary" (click)="openAddModal()" [disabled]="!categoryId">
       <mat-icon>add</mat-icon>
     </button>
     <button mat-mini-fab color="accent" [disabled]="selection.selected.length !== 1"           
