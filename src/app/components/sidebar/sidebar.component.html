@@ -6,8 +6,8 @@
       (click)="addCategory()"
       matTooltip="{{
         selectedNode
-          ? 'Add child to ' + selectedNode.name
-          : 'Select a category first'
+          ? selectedNode.name + '-ის ქვეკატეგორიის დამატება'
+          : 'ჯერ აირჩიეთ კატეგორია'
       }}"
     >
       <mat-icon>add</mat-icon>
@@ -17,7 +17,7 @@
       color="primary"
       [disabled]="!selectedNode"
       (click)="editCategory()"
-      matTooltip="Edit category"
+      matTooltip="კატეგორიის რედაქტირება"
     >
       <mat-icon>edit</mat-icon>
     </button>
@@ -26,7 +26,7 @@
       color="warn"
       [disabled]="!selectedNode"
       (click)="deleteCategory()"
-      matTooltip="Delete category"
+      matTooltip="კატეგორიის წაშლა"
     >
       <mat-icon>delete</mat-icon>
     </button>

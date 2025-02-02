@@ -22,12 +22,12 @@
       </mat-form-field>
 
       <mat-form-field *ngIf="!showNewCountryInput" appearance="outline">
-        <mat-label>Country</mat-label>
+        <mat-label>ქვეყანა</mat-label>
         <mat-select formControlName="countryId" (selectionChange)="onCountrySelectionChange($event)">
           <mat-option *ngFor="let country of countries" [value]="country.id">
             {{country.name}}
           </mat-option>
-          <mat-option value="new">+ Add New Country</mat-option>
+          <mat-option value="new">+ ახალი ქვეყანა</mat-option>
         </mat-select>
         <mat-error *ngIf="productForm.errors?.['countryRequired']">
           {{getCountryError()}}
@@ -35,9 +35,9 @@
       </mat-form-field>
 
       <mat-form-field *ngIf="showNewCountryInput" appearance="outline">
-        <mat-label>New Country Name</mat-label>
+        <mat-label>ახალი ქვეყნის სახელი</mat-label>
         <mat-icon matPrefix class="clickable" (click)="cancelNewCountry()" matTooltip="Back to country selection">arrow_back</mat-icon>
-        <input matInput formControlName="newCountry" placeholder="Enter new country name">
+        <input matInput formControlName="newCountry" placeholder="ჩაწერეთ ახალი ქვეყნის სახელი">
         <mat-error *ngIf="productForm.errors?.['countryRequired']">
           {{getCountryError()}}
         </mat-error>
@@ -46,22 +46,22 @@
   
     <div class="form-row">
       <mat-form-field appearance="outline">
-        <mat-label>Created At</mat-label>
+        <mat-label>დაწყების თარიღი</mat-label>
         <input matInput [matDatepicker]="createdAtPicker" formControlName="createdAt">
         <mat-datepicker-toggle matSuffix [for]="createdAtPicker"></mat-datepicker-toggle>
         <mat-datepicker #createdAtPicker></mat-datepicker>
         <mat-error *ngIf="productForm.get('createdAt')?.errors?.['required']">
-          Created date is required
+          თარიღის მითითება აუცილებელია
         </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>End Date</mat-label>
+        <mat-label>დასრულების თარიღი</mat-label>
         <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
         <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
         <mat-datepicker #endDatePicker></mat-datepicker>
         <mat-error *ngIf="productForm.get('endDate')?.errors?.['required']">
-          End date is required
+          თარიღის მითითება აუცილებელია
         </mat-error>
       </mat-form-field>
     </div>

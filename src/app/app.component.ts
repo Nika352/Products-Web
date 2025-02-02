@@ -35,6 +35,7 @@ export class AppComponent {
   sidebarWidth = signal(250);
   isSidebarOpen = signal(true);
   categoryId: number | null = null;
+  title = 'products-web';
 
   constructor(
     private productService: ProductService,
