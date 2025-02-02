@@ -48,5 +48,9 @@ export class ProductService {
         });
     }
 
+    getProducts() {
+        return this.productsSource.asObservable();
+    }
+
 }
 

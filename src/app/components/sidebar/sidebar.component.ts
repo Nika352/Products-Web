@@ -12,6 +12,8 @@ import { Category } from '../../models/Category';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeleteCategoryModalComponent } from '../delete-category-modal/delete-category-modal.component';
 import { AddCategoryModalComponent } from '../add-category-modal/add-category-modal.component';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -33,7 +35,8 @@ export class SidebarComponent implements OnInit {
   constructor(
     private categoryService: CategoryService,
     private productService: ProductService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -64,7 +67,10 @@ export class SidebarComponent implements OnInit {
     this.selectedNode = node;
 
     if (!this.hasChild(0, node)) {
-      this.loadProducts(node);
+      this.router.navigate([], {
+        queryParams: { categoryId: node.id },
+        queryParamsHandling: 'merge'
+      });
     }
   }
 
@@ -142,5 +148,16 @@ export class SidebarComponent implements OnInit {
 
   refreshSelection() {
     this.selectedNode = null;
+    this.router.navigate([], {
+      queryParams: { categoryId: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onCategorySelect(category: any) {
+    this.router.navigate([], {
+      queryParams: { categoryId: category.id },
+      queryParamsHandling: 'merge'
+    });
   }
 }

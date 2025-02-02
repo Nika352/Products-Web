@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment.local';
 export interface Country {
-    id?: number;
+    id: number;
     name: string;
 }
 

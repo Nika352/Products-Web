@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,10 +12,15 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { Product } from '../../models/Product';
 import { ProductService } from '../../services/product.service';
+import { CountryService } from '../../services/country.service';
+import { MatIconModule } from '@angular/material/icon';
+
 interface ProductDialogData {
   mode: 'add' | 'edit';
   product?: Product
+  categoryId?: number;
 }
+
 
 @Component({
   selector: 'app-product-modal',
@@ -28,7 +33,8 @@ interface ProductDialogData {
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule
   ],
   providers: [
     {
@@ -54,67 +60,118 @@ interface ProductDialogData {
   templateUrl: './product-modal.component.html',
   styleUrl: './product-modal.component.scss'
 })
-export class ProductModalComponent {
+export class ProductModalComponent implements OnInit {
   productForm: FormGroup;
-  countries = ['USA', 'Canada', 'UK', 'Germany', 'France', 'Japan'];
+
+  countries: any[] = [];
   isAddingNewCountry = false;
   isEditMode: boolean;
+
+  showNewCountryInput = false;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ProductModalComponent>,
     @Inject(MAT_DIALOG_DATA) private data: ProductDialogData,
-    private productService: ProductService
+    private productService: ProductService,
+    private countryService: CountryService
   ) {
     this.isEditMode = data.mode === 'edit';
-
-
     this.productForm = this.fb.group({
       code: ['', Validators.required],
       name: ['', Validators.required],
       price: ['', [Validators.required, Validators.min(0)]],
-      country: ['', Validators.required],
+      countryId: [''],
       newCountry: [''],
-      timeFrom: ['', Validators.required],
-      timeTo: ['', Validators.required]
+      createdAt: ['', Validators.required],
+      endDate: ['', Validators.required]
+    }, {
+      validators: this.countryValidator
     });
-
+    
     if (this.isEditMode && data.product) {
       this.productForm.patchValue({
         code: data.product.code,
         name: data.product.name,
         price: data.product.price,
-        country: data.product.country,
-        timeFrom: data.product.createdAt,
-        timeTo: data.product.endDate
+        countryId: data.product.country?.id,
+        createdAt: data.product.createdAt,
+        endDate: data.product.endDate
       });
     }
+  }
+ 
+
+
+  private countryValidator(group: AbstractControl): ValidationErrors | null {
+    const countryId = group.get('countryId')?.value;
+    const newCountry = group.get('newCountry')?.value;
+
+    if (!countryId && !newCountry) {
+      return { countryRequired: true };
+    }
+
+    return null;
+  }
+
+  ngOnInit() {
+    this.loadCountries();
+  }
+
+  loadCountries() {
+    this.countryService.getCountries().subscribe({
+      next: (countries) => {
+        this.countries = countries;
+      },
+      error: (error) => {
+        console.error('Error loading countries:', error);
+      }
+    });
   }
 
   onSubmit() {
     if (this.productForm.valid) {
-      const { newCountry, ...productData } = this.productForm.value;
+      console.log('Form value:', this.productForm.value);
+      console.log('New country value:', this.productForm.get('newCountry')?.value);
       
-      if (this.isEditMode) {
+      if (this.showNewCountryInput && this.productForm.get('newCountry')?.value) {
+        const newCountryName : string = this.productForm.get('newCountry')?.value;
         
-        this.productService.updateProduct(productData).subscribe({
-          next: () => {
-            this.dialogRef.close(true);
+        console.log('Creating new country with name:', newCountryName);
+        
+        this.countryService.createCountry({ name: newCountryName.trim(), id: 0 }).subscribe({
+
+          next: (newCountry) => {
+            const { countryId, newCountry: _, ...otherFormData } = this.productForm.value;
+            
+            const productData = {
+              ...otherFormData,
+              countryId: newCountry.id,
+              categoryId: this.data.categoryId
+            };
+
+            console.log('Creating product with data:', productData);
+
+            if (this.isEditMode) {
+              this.updateProduct(productData);
+            } else {
+              this.createProduct(productData);
+            }
           },
           error: (error) => {
-            console.error('Error updating product:', error);
+            console.error('Error creating country:', error);
           }
         });
       } else {
-       
-        this.productService.createProduct(productData).subscribe({
-          next: () => {
-            this.dialogRef.close(true);
-          },
-          error: (error) => {
-            console.error('Error creating product:', error);
-          }
-        });
+        const { newCountry, ...productData } = this.productForm.value;
+        
+        console.log('Using existing country, product data:', productData);
+
+        if (this.isEditMode) {
+          this.updateProduct({...productData, categoryId: this.data.categoryId});
+        } else {
+          this.createProduct({...productData, categoryId: this.data.categoryId});
+        }
       }
     } else {
       Object.keys(this.productForm.controls).forEach(key => {
@@ -124,28 +181,55 @@ export class ProductModalComponent {
     }
   }
 
+  onCountrySelectionChange(event: any) {
+    if (event.value === 'new') {
+      this.showNewCountryInput = true;
+      this.productForm.patchValue({
+        countryId: null,
+      });
+    }
+  }
+
+  cancelNewCountry() {
+    this.showNewCountryInput = false;
+    this.productForm.patchValue({
+      countryId: '',
+      newCountry: ''
+    });
+  }
+
+  updateProduct(productData: Product) {
+    this.productService.updateProduct({...productData, id: this.data.product?.id}).subscribe({
+      next: () => {
+        this.dialogRef.close(true);
+        this.productService.loadProducts(this.data.categoryId || 0);
+      },
+      error: (error) => {
+        console.error('Error updating product:', error);
+      }
+    });
+  }
+
+  createProduct(productData: Product) {
+    this.productService.createProduct(productData).subscribe({
+      next: () => {
+        this.dialogRef.close(true);
+        this.productService.loadProducts(this.data.categoryId || 0);
+      },
+      error: (error) => {
+        console.error('Error creating product:', error);
+      }
+    });
+  }
+
   onCancel() {
     this.dialogRef.close();
   }
 
-  onCountrySelectionChange(value: string) {
-    if (value === 'add_new') {
-      this.isAddingNewCountry = true;
-      this.productForm.get('country')?.setValue('');
+  getCountryError(): string {
+    if (this.productForm.errors?.['countryRequired']) {
+      return 'Please select a country or add a new one';
     }
-  }
-
-  addNewCountry() {
-    const newCountry = this.productForm.get('newCountry')?.value;
-    if (newCountry && !this.countries.includes(newCountry)) {
-      this.countries.push(newCountry);
-      this.productForm.patchValue({
-        country: newCountry,
-        newCountry: ''
-      });
-      setTimeout(() => {
-        this.isAddingNewCountry = false;
-      });
-    }
+    return '';
   }
 }

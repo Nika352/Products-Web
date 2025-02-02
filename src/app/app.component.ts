@@ -9,9 +9,13 @@ import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { ProductsTableComponent } from './components/products-table/products-table.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ProductService } from './services/product.service';
+import { ActivatedRoute } from '@angular/router';
+
 @Component({
   selector: 'app-root',
   standalone: true,
+
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   imports: [
@@ -30,6 +34,20 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 export class AppComponent {
   sidebarWidth = signal(250);
   isSidebarOpen = signal(true);
+  categoryId: number | null = null;
+
+  constructor(
+    private productService: ProductService,
+    private route: ActivatedRoute
+  ) { }
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.categoryId = params['categoryId'] ? +params['categoryId'] : null;
+      console.log('Category ID from URL:', this.categoryId);
+      this.productService.loadProducts(this.categoryId || 0);
+    });
+  }
 
 
   toggleSidebar() {

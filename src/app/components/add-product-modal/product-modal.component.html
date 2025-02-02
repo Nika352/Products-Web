@@ -21,36 +21,38 @@
         <span matPrefix>$&nbsp;</span>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label *ngIf="!isAddingNewCountry">ქვეყანა</mat-label>
-        <mat-label *ngIf="isAddingNewCountry">დაამატე ახალი ქვეყანა</mat-label>
-        <mat-select
-          formControlName="country"
-          required
-          (selectionChange)="onCountrySelectionChange($event.value)"
-          *ngIf="!isAddingNewCountry"
-        >
-          <mat-option *ngFor="let country of countries" [value]="country">
-            {{ country }}
+      <!-- Show country selector when not adding new country -->
+      <mat-form-field *ngIf="!showNewCountryInput" appearance="outline">
+        <mat-label>Country</mat-label>
+        <mat-select formControlName="countryId" (selectionChange)="onCountrySelectionChange($event)">
+          <mat-option *ngFor="let country of countries" [value]="country.id">
+            {{country.name}}
           </mat-option>
-          <mat-option [value]="'add_new'">+ ახალი ქვეყანა</mat-option>
+          <mat-option value="new">+ Add New Country</mat-option>
         </mat-select>
-        <input
-          *ngIf="isAddingNewCountry"
-          matInput
-          formControlName="newCountry"
-          (keyup.enter)="addNewCountry()"
-          (blur)="addNewCountry()"
-        />
+        <mat-error *ngIf="productForm.errors?.['countryRequired']">
+          {{getCountryError()}}
+        </mat-error>
       </mat-form-field>
-    </div>
+
+      <!-- Show new country input with back button as prefix -->
+      <mat-form-field *ngIf="showNewCountryInput" appearance="outline">
+        <mat-label>New Country Name</mat-label>
+        <mat-icon matPrefix class="clickable" (click)="cancelNewCountry()" matTooltip="Back to country selection">arrow_back</mat-icon>
+        <input matInput formControlName="newCountry" placeholder="Enter new country name">
+        <mat-error *ngIf="productForm.errors?.['countryRequired']">
+          {{getCountryError()}}
+        </mat-error>
+      </mat-form-field>
+    </div>  
+  
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>თარიღიდან</mat-label>
         <input
           matInput
           [matDatepicker]="pickerFrom"
-          formControlName="timeFrom"
+          formControlName="createdAt"
           required
         />
         <mat-datepicker-toggle
@@ -65,7 +67,7 @@
         <input
           matInput
           [matDatepicker]="pickerTo"
-          formControlName="timeTo"
+          formControlName="endDate"
           required
         />
         <mat-datepicker-toggle

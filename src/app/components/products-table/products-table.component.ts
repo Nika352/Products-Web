@@ -10,6 +10,7 @@ import { ProductModalComponent } from '../add-product-modal/product-modal.compon
 import { Product } from '../../models/Product';
 import { DeleteProductModalComponent } from '../delete-product-modal/delete-product-modal.component';
 import { ProductService } from '../../services/product.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-products-table',
@@ -22,24 +23,31 @@ export class ProductsTableComponent implements OnInit {
   displayedColumns: string[] = ['select', 'position', 'name', 'price'];
   selection = new SelectionModel<any>(true, []);
   dataSource: Product[] = [];
+  categoryId: number | null = null;
+
   constructor(
     private dialog: MatDialog,
-    private productService: ProductService
+    private productService: ProductService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    this.productService.currentProducts.subscribe(products => {
-      this.dataSource = products;
-    });
+      this.productService.getProducts().subscribe((products) => {
+        this.dataSource = products;
+      });
+      this.route.queryParams.subscribe(params => {
+        this.categoryId = params['categoryId'] ? +params['categoryId'] : null;
+      });
   }
 
   openAddModal() {
     const dialogRef = this.dialog.open(ProductModalComponent, {
-      data: { mode: 'add' }
+      data: { mode: 'add', categoryId: this.categoryId }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.refreshSelection();
       }
     });
   }
@@ -48,15 +56,18 @@ export class ProductsTableComponent implements OnInit {
     const dialogRef = this.dialog.open(ProductModalComponent, {
       data: {
         mode: 'edit',
-        product: { ...product }
+        product: { ...product },
+        categoryId: this.categoryId
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.refreshSelection();
       }
     });
   }
+
 
   isAllSelected() {
     const numSelected = this.selection.selected.length;
