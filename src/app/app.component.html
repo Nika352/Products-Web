@@ -1,1 +1,26 @@
-<app-sidebar></app-sidebar>
+<mat-sidenav-container class="container">
+  <mat-sidenav
+    #sidenav
+    mode="side"
+    [opened]="true"
+    [style.width.px]="sidebarWidth()"
+  >
+    <div class="sidebar-header">
+      <button mat-icon-button (click)="toggleSidebar()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+
+    <div class="resizer" (mousedown)="onMouseDown($event)"></div>
+
+    <div class="sidebar-content" *ngIf="isSidebarOpen()">
+      <app-sidebar></app-sidebar>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="content">
+      <app-products-table></app-products-table>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

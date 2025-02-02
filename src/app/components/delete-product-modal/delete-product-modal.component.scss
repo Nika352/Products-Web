@@ -1,0 +1,32 @@
+.delete-modal {
+  padding: 20px;
+
+  .modal-title {
+    margin: 0 0 20px 0;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  .modal-content {
+    margin-bottom: 24px;
+
+    p {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  }
+
+  .modal-actions {
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+
+    .cancel-btn {
+      margin-right: 8px;
+    }
+
+    .delete-btn {
+      min-width: 88px;
+    }
+  }
+}

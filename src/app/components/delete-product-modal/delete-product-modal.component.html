@@ -1,0 +1,19 @@
+<div class="delete-modal">
+  <h2 mat-dialog-title class="modal-title">პროდუქტის წაშლა</h2>
+
+  <mat-dialog-content class="modal-content">
+    <p>ნამდვილად გსურთ პროდუქტის "{{ data.product.name }}" წაშლა?</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="modal-actions">
+    <button mat-button mat-dialog-close class="cancel-btn">გაუქმება</button>
+    <button
+      mat-raised-button
+      color="warn"
+      [mat-dialog-close]="true"
+      class="delete-btn"
+    >
+      წაშლა
+    </button>
+  </mat-dialog-actions>
+</div>

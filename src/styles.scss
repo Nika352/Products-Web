@@ -1,4 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-drawer-container.mat-sidenav-container .mat-sidenav-content {
+  margin-left: 0 !important;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(188, 188, 188, 0.1);
+  cursor: pointer;
+}
+
+.mat-mdc-row {
+  transition: background-color 0.2s ease;
+}

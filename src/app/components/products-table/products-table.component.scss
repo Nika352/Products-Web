@@ -1,0 +1,38 @@
+.mat-table {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    overflow: auto;
+  }
+  
+  // Table header
+  .mat-header-row {
+    flex-shrink: 0; // Keep header always visible
+  }
+  
+  // Table rows should stretch
+  .mat-row {
+    flex-grow: 1;
+    display: flex;
+  }
+
+  .table-controls {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .left-controls {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .right-controls {
+    display: flex;
+    gap: 8px;
+  }
+
+  .selected-row {
+    background-color: rgba(251, 208, 241, 0.08) !important;
+  }
+  

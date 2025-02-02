@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  min-width: 350px;
+  max-width: 500px;
+  padding: 24px;
+}
+
+.full-width {
+  width: 40%;
+  margin-bottom: 15px;
+}
+
+mat-dialog-content {
+  padding-top: 20px;
+}
+
+mat-dialog-actions {
+  padding: 16px 0;
+  gap: 8px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  mat-form-field {
+    flex: 1;
+  }
+}
