@@ -243,7 +243,7 @@ export class ProductModalComponent implements OnInit {
 
   getDateError(): string {
     if (this.productForm.errors?.['dateOrder']) {
-      return 'Created date cannot be after end date';
+      return 'დაწყების დრო არ უნდა სცდებოდეს დასრულების დროს';
     }
     return '';
   }
